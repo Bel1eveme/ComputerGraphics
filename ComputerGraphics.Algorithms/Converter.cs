@@ -1,11 +1,39 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using Microsoft.VisualBasic;
 
 namespace ComputerGraphics.Algorithms;
 
 public class Converter
 {
+    /*public List<Vector4> ApplyAllTransformations(List<Vector4> modelVertices, , Matrix4x4 transformationMatrix,
+        Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix,
+        int width, int height)
+    {
+        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(modelVertices);
+
+        for (int i = 0; i < verticesAsSpan.Length; i++)
+        {
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], transformationMatrix);
+            
+            
+            
+            
+        }
+        
+        
+        return vertices;
+    }*/
+
+    public List<Vector4> ApplyTransformation(List<Vector4> vertices, Matrix4x4 transformationMatrix)
+    {
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            vertices[i] = Vector4.Transform(vertices[i], transformationMatrix);
+        }
+        
+        return vertices;
+    }
+    
     public List<Vector4> ModelToWorld(List<Vector4> vertices, Matrix4x4 transformationMatrix)
     {
         Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(vertices);
