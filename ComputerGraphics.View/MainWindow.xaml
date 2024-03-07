@@ -16,6 +16,6 @@
         <!--<StackPanel  Width="1920" Height="1080">
             
         </StackPanel>-->
-        <Image Name="ImageView"  Width="1920" Height="1000" />
+        <Image Name="ImageView" Width="1920" Height="1000" />
     </Grid>
 </Window>

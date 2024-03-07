@@ -10,7 +10,7 @@ public class Model
     
     private const float NearPlaneDistance = 0.1f;
     
-    private const float FarPlaneDistance = 1000f;
+    private const float FarPlaneDistance = 100f;
 
     private const float Step = (float)Math.PI / 15;
 
@@ -48,7 +48,7 @@ public class Model
         var cameraTarget = Vector3.Zero;
         var cameraUpVector = Vector3.UnitY;
 
-        _scalingCoefficient = 0.00009f;
+        _scalingCoefficient = 0.5f;
         _worldMatrix = Matrix4x4.Identity;
         _viewMatrix = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, cameraUpVector);
         _projectionMatrix =
@@ -65,8 +65,8 @@ public class Model
         Vertices = _converter.ViewToProjection(Vertices, _projectionMatrix);
         Vertices = _converter.ProjectionToViewport(Vertices, _viewportWidth, _viewportHeight);
 
-        /*Vertices = _converter.ApplyAllTransformations(_modelVertices, _scalingCoefficient,
-            _worldMatrix, _projectionMatrix, _viewMatrix, _viewportWidth, _viewportHeight);*/
+        _converter.ApplyTransformations(_modelVertices, Vertices, _scalingCoefficient,
+            _worldMatrix, _viewMatrix, _projectionMatrix, _viewportWidth, _viewportHeight);
     }
 
     public void ChangeScalingCoefficient(float delta)

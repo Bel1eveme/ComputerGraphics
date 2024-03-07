@@ -5,30 +5,68 @@ namespace ComputerGraphics.Algorithms;
 
 public class Converter
 {
-    /*public List<Vector4> ApplyAllTransformations(List<Vector4> modelVertices, , Matrix4x4 transformationMatrix,
-        Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix,
-        int width, int height)
+    public void ApplyTransformations(List<Vector4> modelVertices, List<Vector4> vertices, Matrix4x4 worldMatrix,
+        Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, int width, int height)
     {
-        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(modelVertices);
-
-        for (int i = 0; i < verticesAsSpan.Length; i++)
+        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(vertices);
+        Span<Vector4> modelVerticesAsSpan = CollectionsMarshal.AsSpan(modelVertices);
+        
+        for (int i = 0; i < modelVertices.Count; i++)
         {
-            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], transformationMatrix);
+            verticesAsSpan[i] = Vector4.Transform(modelVerticesAsSpan[i], worldMatrix);
             
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], viewMatrix);
             
-            
-            
-        }
-        
-        
-        return vertices;
-    }*/
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], projectionMatrix);
+            verticesAsSpan[i] /= verticesAsSpan[i].W;
 
-    public List<Vector4> ApplyTransformation(List<Vector4> vertices, Matrix4x4 transformationMatrix)
+            verticesAsSpan[i].X = (verticesAsSpan[i].X + 1) * width / 2;
+            verticesAsSpan[i].Y = (-verticesAsSpan[i].Y + 1) * height / 2;
+        }
+    }
+    
+    public void ApplyTransformations(List<Vector4> modelVertices, List<Vector4> vertices, float scale,
+        Matrix4x4 worldMatrix, Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, int width, int height)
     {
+        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(vertices);
+        Span<Vector4> modelVerticesAsSpan = CollectionsMarshal.AsSpan(modelVertices);
+        
+        for (int i = 0; i < modelVertices.Count; i++)
+        {
+            verticesAsSpan[i] = Vector4.Transform(modelVerticesAsSpan[i], Matrix4x4.CreateScale(scale));
+            
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], worldMatrix);
+            
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], viewMatrix);
+            
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], projectionMatrix);
+            verticesAsSpan[i] /= verticesAsSpan[i].W;
+
+            verticesAsSpan[i].X = (verticesAsSpan[i].X + 1) * width / 2;
+            verticesAsSpan[i].Y = (-verticesAsSpan[i].Y + 1) * height / 2;
+        }
+    }
+
+    public List<Vector4> ApplyTransformation(List<Vector4> vertices, Matrix4x4 matrix)
+    {
+        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(vertices);
+        
         for (int i = 0; i < vertices.Count; i++)
         {
-            vertices[i] = Vector4.Transform(vertices[i], transformationMatrix);
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], matrix);
+        }
+        
+        return vertices;
+    }
+    
+    public List<Vector4> ApplyTransformationWithDivision(List<Vector4> vertices, Matrix4x4 matrix)
+    {
+        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(vertices);
+        
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], matrix);
+            verticesAsSpan[i] /= vertices[i].W;
         }
         
         return vertices;
@@ -36,13 +74,6 @@ public class Converter
     
     public List<Vector4> ModelToWorld(List<Vector4> vertices, Matrix4x4 transformationMatrix)
     {
-        Span<Vector4> verticesAsSpan = CollectionsMarshal.AsSpan(vertices);
-        
-        for (int i = 0; i < verticesAsSpan.Length; i++)
-        {
-            verticesAsSpan[i] = Vector4.Transform(verticesAsSpan[i], transformationMatrix);
-        }
-        
         for (int i = 0; i < vertices.Count; i++)
         {
             vertices[i] = Vector4.Transform(vertices[i], transformationMatrix);
@@ -85,11 +116,11 @@ public class Converter
         return vertices;
     }
     
-    public List<Vector4> Transform(List<Vector4> vertices, Matrix4x4 translationMatrix)
+    public List<Vector4> Transform(List<Vector4> vertices, Matrix4x4 matrix)
     {
         for (int i = 0; i < vertices.Count; i++)
         {
-            vertices[i] = Vector4.Transform(vertices[i], translationMatrix);
+            vertices[i] = Vector4.Transform(vertices[i], matrix);
         }
         
         return vertices;
@@ -114,4 +145,12 @@ public class Converter
         
         return scaledVertices;
     }
+
+    private Matrix4x4 GetScaleMatrix(float scale) => new Matrix4x4
+    (
+        scale, 0, 0, 0,
+        0, scale, 0, 0,
+        0, 0, scale, 0,
+        0, 0, 0, 1
+    );
 }

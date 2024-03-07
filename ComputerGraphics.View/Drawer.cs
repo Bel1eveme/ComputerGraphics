@@ -28,7 +28,7 @@ public class Drawer
         Bitmap = new Bitmap(width, height);
         _model = model;
 
-        _colorRgbArray = [_foregroundColor.B, _foregroundColor.G, _foregroundColor.R];
+        _colorRgbArray = [foregroundColor.B, _foregroundColor.G, _foregroundColor.R];
         _bytesInPixel = Image.GetPixelFormatSize(Bitmap.PixelFormat) / 8;
         
         Update();
@@ -53,7 +53,7 @@ public class Drawer
                            + (int)float.Round(y) * data.Stride + 
                            (int)float.Round(x) * _bytesInPixel;
             
-            if (pixel != null  && x < data.Width && x >= 0 && y < data.Height && y >= 0)
+            if (pixel != null  && x < data.Width - 20 && x >= 0 && y < data.Height - 20 && y >= 0)
             {
                 pixel[0] = _foregroundColor.B;
                 pixel[1] = _foregroundColor.G;

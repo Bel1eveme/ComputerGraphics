@@ -32,13 +32,17 @@ public partial class MainWindow
         InitializeComponent();
 
         //var pathToObjFile = "D:\\downloads\\FinalBaseMesh.obj";
-        var pathToObjFile = @"D:\downloads\cube.obj";
+        //var pathToObjFile = @"D:\downloads\cube.obj";
         //var pathToObjFile = "D:\\downloads\\ImageToStl.com_datsun240k.obj";
-        //var pathToObjFile = "D:\\downloads\\Napoleon.obj";
+        var pathToObjFile = "D:\\downloads\\Napoleon.obj";
+
+
+        ObjFileParser parser = new ObjFileParser(pathToObjFile);
+        parser.ParseFile();
         
-        _model = new Model(new ObjFileParser(pathToObjFile), new Converter(), (int) ImageView.Width - 30, (int) ImageView.Height - 30);
+        _model = new Model(parser, new Converter(), (int)ImageView.Width - 30, (int)ImageView.Height - 30);
         
-        _drawer = new Drawer((int)ImageView.Width, (int) ImageView.Height,
+        _drawer = new Drawer((int)ImageView.Width, (int)ImageView.Height,
             Color.White, Color.Black, _model);
         
         Update();
@@ -90,7 +94,7 @@ public partial class MainWindow
     {
         if (e.Delta > 0)
         {
-            _model.ChangeScalingCoefficient(0.1f);
+            _model.ChangeScalingCoefficient(0.001f);
         }
         else
         {
