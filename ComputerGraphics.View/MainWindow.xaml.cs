@@ -1,6 +1,5 @@
-﻿using System.Drawing;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
+﻿using System.Windows.Input;
+using System.Windows.Media;
 using ComputerGraphics.Algorithms;
 
 namespace ComputerGraphics.View;
@@ -17,12 +16,6 @@ public partial class MainWindow
     private void Update()
     {
         _drawer.Update();
-
-        ImageView.Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-            _drawer.Bitmap.GetHbitmap(),
-            IntPtr.Zero,
-            System.Windows.Int32Rect.Empty,
-            BitmapSizeOptions.FromEmptyOptions());
         
         ImageView.UpdateLayout();
     }
@@ -39,13 +32,18 @@ public partial class MainWindow
 
         ObjFileParser parser = new ObjFileParser(pathToObjFile);
         parser.ParseFile();
+
+        
+        Console.WriteLine("Parsed");
+        
         
         _model = new Model(parser, new Converter(), (int)ImageView.Width - 30, (int)ImageView.Height - 30);
         
-        _drawer = new Drawer((int)ImageView.Width, (int)ImageView.Height,
-            Color.White, Color.Black, _model);
+        _drawer = new Drawer((int)ImageView.Width, (int)ImageView.Height, Colors.White, Colors.Black, _model);
         
         Update();
+
+        ImageView.Source = _drawer.Bitmap;
     }
 
     private void WindowKeyDownEventHandler(object sender, KeyEventArgs e)

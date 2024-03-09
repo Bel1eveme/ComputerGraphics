@@ -48,7 +48,7 @@ public class Model
         var cameraTarget = Vector3.Zero;
         var cameraUpVector = Vector3.UnitY;
 
-        _scalingCoefficient = 0.5f;
+        _scalingCoefficient = 0.00005f;
         _worldMatrix = Matrix4x4.Identity;
         _viewMatrix = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, cameraUpVector);
         _projectionMatrix =
@@ -59,11 +59,11 @@ public class Model
 
     private void Update()
     {
-        Vertices = _converter.ModelToWorld(_converter.Scale(_modelVertices, _scalingCoefficient), _worldMatrix);
+        /*Vertices = _converter.ModelToWorld(_converter.Scale(_modelVertices, _scalingCoefficient), _worldMatrix);
         
         Vertices = _converter.WorldToView(Vertices, _viewMatrix);
         Vertices = _converter.ViewToProjection(Vertices, _projectionMatrix);
-        Vertices = _converter.ProjectionToViewport(Vertices, _viewportWidth, _viewportHeight);
+        Vertices = _converter.ProjectionToViewport(Vertices, _viewportWidth, _viewportHeight);*/
 
         _converter.ApplyTransformations(_modelVertices, Vertices, _scalingCoefficient,
             _worldMatrix, _viewMatrix, _projectionMatrix, _viewportWidth, _viewportHeight);

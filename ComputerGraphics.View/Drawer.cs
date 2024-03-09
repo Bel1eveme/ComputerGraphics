@@ -1,15 +1,16 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using ComputerGraphics.Algorithms;
-
-using Rectangle = System.Drawing.Rectangle;
+using Color = System.Windows.Media.Color;
 
 namespace ComputerGraphics.View;
 
 public class Drawer
 {
-    public Bitmap Bitmap { get; }
+    public WriteableBitmap Bitmap { get; }
 
     private readonly Color _foregroundColor;
     
@@ -19,22 +20,22 @@ public class Drawer
 
     private readonly byte[] _colorRgbArray;
 
-    private readonly int _bytesInPixel;
+    private readonly int _bytesPerPixel;
 
     public Drawer(int width, int height, Color foregroundColor, Color backgroundColor, Model model)
     {
         _foregroundColor = foregroundColor;
         _backgroundColor = backgroundColor;
-        Bitmap = new Bitmap(width, height);
+        Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgr32, null);
         _model = model;
 
         _colorRgbArray = [foregroundColor.B, _foregroundColor.G, _foregroundColor.R];
-        _bytesInPixel = Image.GetPixelFormatSize(Bitmap.PixelFormat) / 8;
+        _bytesPerPixel = (Bitmap.Format.BitsPerPixel + 7) / 8;
         
         Update();
     }
 
-    private unsafe void DrawLineDda(BitmapData data, PointF firstPoint, PointF secondPoint)
+    private unsafe void DrawLineDda(PointF firstPoint, PointF secondPoint)
     {
         float dx = secondPoint.X - firstPoint.X;
         float dy = secondPoint.Y - firstPoint.Y;
@@ -51,14 +52,14 @@ public class Drawer
         {
             byte* pixel = (byte*) data.Scan0
                            + (int)float.Round(y) * data.Stride + 
-                           (int)float.Round(x) * _bytesInPixel;
+                           (int)float.Round(x) * _bytesPerPixel;
             
             if (pixel != null  && x < data.Width - 20 && x >= 0 && y < data.Height - 20 && y >= 0)
             {
                 pixel[0] = _foregroundColor.B;
                 pixel[1] = _foregroundColor.G;
                 pixel[2] = _foregroundColor.R;
-                pixel[3] = 255;
+                pixel[3] = _foregroundColor.A;
                 //Marshal.Copy(_colorRgbArray, 0, pixel, _colorRgbArray.Length);
             }
             
@@ -69,9 +70,23 @@ public class Drawer
 
     private void Clear()
     {
-        using var graphics = Graphics.FromImage(Bitmap);
+        Color clearColor = Colors.Black;
         
-        graphics.Clear(_backgroundColor);
+        int stride = Bitmap.PixelWidth * _bytesPerPixel;
+        
+        byte[] pixels = new byte[Bitmap.PixelHeight * stride];
+        
+        for (int i = 0; i < pixels.Length; i += _bytesPerPixel)
+        {
+            pixels[i + 0] = clearColor.B;
+            pixels[i + 1] = clearColor.G;
+            pixels[i + 2] = clearColor.R;
+            pixels[i + 3] = clearColor.A;
+        }
+        
+        // test vs array copy
+        
+        Bitmap.WritePixels(new Int32Rect(0, 0, Bitmap.PixelWidth, Bitmap.PixelHeight), pixels, stride, 0);
     }
     
     private void Draw()
@@ -81,9 +96,8 @@ public class Drawer
         {
             pointsArray[i] = new PointF(_model.Vertices[i].X, _model.Vertices[i].Y);
         }
-        
-        BitmapData bitmapData = Bitmap.LockBits(new Rectangle(0, 0, Bitmap.Width, Bitmap.Height),
-                                        ImageLockMode.WriteOnly, Bitmap.PixelFormat);
+
+        Bitmap.Lock();
 			 
         foreach (List<int> polygon in _model.Polygons)
         {
@@ -95,7 +109,7 @@ public class Drawer
                 PointF point1 = pointsArray[index1 - 1];
                 PointF point2 = pointsArray[index2 - 1];
 
-                DrawLineDda(bitmapData, point1, point2);
+                DrawLineDda(point1, point2);
             }
 
             int lastIndex = polygon[^1];
@@ -104,10 +118,10 @@ public class Drawer
             PointF lastPoint = pointsArray[lastIndex - 1];
             PointF firstPoint = pointsArray[firstIndex - 1];
 				 
-            DrawLineDda(bitmapData, lastPoint, firstPoint);
+            DrawLineDda(lastPoint, firstPoint);
         }
         
-        Bitmap.UnlockBits(bitmapData);
+        Bitmap.Unlock();
     }
 
     public void Update()
