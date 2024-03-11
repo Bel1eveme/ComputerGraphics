@@ -12,8 +12,6 @@ public class Model
     
     private const float FarPlaneDistance = 100f;
 
-    private const float Step = (float)Math.PI / 15;
-
     public List<Vector4> Vertices { get; private set; }
     
     public List<List<int>> Polygons { get; private set; }
@@ -32,7 +30,9 @@ public class Model
 
     private float _scalingCoefficient;
     
-    private List<Vector4> _modelVertices;
+    private float _step;
+    
+    private readonly List<Vector4> _modelVertices;
 
     public Model(ObjFileParser parser, Converter converter, int viewportWidth, int viewportHeight)
     {
@@ -41,14 +41,18 @@ public class Model
         _viewportHeight = viewportHeight;
 
         _modelVertices = parser.Vertices;
-        Vertices = parser.Vertices;
+        Vertices =  Enumerable.Range(1, _modelVertices.Count)
+                            .Select(_ => new Vector4()).ToList();
         Polygons = parser.Polygons;
+        
+        Console.WriteLine("Started drawing");
         
         var cameraPosition = new Vector3(1f, 1f, -MathF.PI);
         var cameraTarget = Vector3.Zero;
         var cameraUpVector = Vector3.UnitY;
 
         _scalingCoefficient = 0.00005f;
+        _step = (float)Math.PI / 15.0f;
         _worldMatrix = Matrix4x4.Identity;
         _viewMatrix = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, cameraUpVector);
         _projectionMatrix =
@@ -59,61 +63,59 @@ public class Model
 
     private void Update()
     {
-        /*Vertices = _converter.ModelToWorld(_converter.Scale(_modelVertices, _scalingCoefficient), _worldMatrix);
-        
-        Vertices = _converter.WorldToView(Vertices, _viewMatrix);
-        Vertices = _converter.ViewToProjection(Vertices, _projectionMatrix);
-        Vertices = _converter.ProjectionToViewport(Vertices, _viewportWidth, _viewportHeight);*/
-
         _converter.ApplyTransformations(_modelVertices, Vertices, _scalingCoefficient,
             _worldMatrix, _viewMatrix, _projectionMatrix, _viewportWidth, _viewportHeight);
+        
+        /*_converter.ApplyTransformations(_modelVertices, Vertices,
+            _worldMatrix, _viewMatrix, _projectionMatrix, _viewportWidth, _viewportHeight);*/
     }
 
     public void ChangeScalingCoefficient(float delta)
     {
         _scalingCoefficient += delta;
+        //_step = _scalingCoefficient / 10;
         
         Update();
     }
 
     public void RotateRight()
     {
-        _modelVertices = _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(-Step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(-_step));
         
         Update();
     }
     
     public void RotateLeft()
     {
-        _modelVertices = _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(Step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(_step));
         
         Update();
     }
     
     public void RotateDown()
     {
-        _modelVertices = _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(-Step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(-_step));
         
         Update();
     }
     
     public void RotateUp()
     {
-        _modelVertices = _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(Step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(_step));
         
         Update();
     }
     
     public void MoveRight()
     {
-        _modelVertices = _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(-Step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(-_step));
         
         Update();
     }
     
     public void MoveLeft()
     {
-        _modelVertices = _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(Step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(_step));
         
         Update();
     }

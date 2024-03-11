@@ -16,8 +16,6 @@ public partial class MainWindow
     private void Update()
     {
         _drawer.Update();
-        
-        ImageView.UpdateLayout();
     }
     
     public MainWindow()
@@ -29,15 +27,14 @@ public partial class MainWindow
         //var pathToObjFile = "D:\\downloads\\ImageToStl.com_datsun240k.obj";
         var pathToObjFile = "D:\\downloads\\Napoleon.obj";
 
-
-        ObjFileParser parser = new ObjFileParser(pathToObjFile);
+        ObjFileParser parser = new (pathToObjFile);
         parser.ParseFile();
-
         
         Console.WriteLine("Parsed");
         
         
         _model = new Model(parser, new Converter(), (int)ImageView.Width - 30, (int)ImageView.Height - 30);
+        //_model = new Model(parser, new Converter(), 1080, 720);
         
         _drawer = new Drawer((int)ImageView.Width, (int)ImageView.Height, Colors.White, Colors.Black, _model);
         
@@ -92,11 +89,11 @@ public partial class MainWindow
     {
         if (e.Delta > 0)
         {
-            _model.ChangeScalingCoefficient(0.001f);
+            _model.ChangeScalingCoefficient(0.0001f);
         }
         else
         {
-            _model.ChangeScalingCoefficient(-0.001f);
+            _model.ChangeScalingCoefficient(-0.0001f);
         }
         
         Update();
