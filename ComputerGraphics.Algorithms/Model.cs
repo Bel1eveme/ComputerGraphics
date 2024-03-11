@@ -12,7 +12,7 @@ public class Model
     
     private const float FarPlaneDistance = 100f;
 
-    public List<Vector4> Vertices { get; private set; }
+    public List<Vector4> Vertices { get; }
     
     public List<List<int>> Polygons { get; private set; }
 
@@ -65,59 +65,59 @@ public class Model
     {
         _converter.ApplyTransformations(_modelVertices, Vertices, _scalingCoefficient,
             _worldMatrix, _viewMatrix, _projectionMatrix, _viewportWidth, _viewportHeight);
-        
-        /*_converter.ApplyTransformations(_modelVertices, Vertices,
-            _worldMatrix, _viewMatrix, _projectionMatrix, _viewportWidth, _viewportHeight);*/
     }
 
     public void ChangeScalingCoefficient(float delta)
     {
         _scalingCoefficient += delta;
-        //_step = _scalingCoefficient / 10;
-        
-        Update();
-    }
-
-    public void RotateRight()
-    {
-        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(-_step));
         
         Update();
     }
     
-    public void RotateLeft()
+    public void ChangeStep(float delta)
+    {
+        _step += delta;
+    }
+
+    public void RotateXPos()
     {
         _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(_step));
         
         Update();
     }
     
-    public void RotateDown()
+    public void RotateXNeg()
     {
-        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(-_step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationX(-_step));
         
         Update();
     }
     
-    public void RotateUp()
+    public void RotateYPos()
     {
         _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(_step));
         
         Update();
     }
     
-    public void MoveRight()
+    public void RotateYNeg()
     {
-        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(-_step));
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationY(-_step));
         
         Update();
     }
     
-    public void MoveLeft()
+    public void RotateZPos()
     {
         _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(_step));
         
         Update();
     }
     
+    public void RotateZNeg()
+    {
+        _converter.Transform(_modelVertices, Matrix4x4.CreateRotationZ(-_step));
+        
+        Update();
+    }
 }

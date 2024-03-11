@@ -24,64 +24,80 @@ public partial class MainWindow
 
         //var pathToObjFile = "D:\\downloads\\FinalBaseMesh.obj";
         //var pathToObjFile = @"D:\downloads\cube.obj";
-        //var pathToObjFile = "D:\\downloads\\ImageToStl.com_datsun240k.obj";
-        var pathToObjFile = "D:\\downloads\\Napoleon.obj";
+        //var pathToObjFile = @"D:\downloads\ImageToStl.com_datsun240k.obj";
+        var pathToObjFile = @"D:\downloads\Napoleon.obj";
 
         ObjFileParser parser = new (pathToObjFile);
         parser.ParseFile();
         
         Console.WriteLine("Parsed");
         
+        _model = new Model(parser, new Converter(), (int)ImageView.Width, (int)ImageView.Height);
         
-        _model = new Model(parser, new Converter(), (int)ImageView.Width - 30, (int)ImageView.Height - 30);
-        //_model = new Model(parser, new Converter(), 1080, 720);
+        Console.WriteLine("Model created");
         
         _drawer = new Drawer((int)ImageView.Width, (int)ImageView.Height, Colors.White, Colors.Black, _model);
         
         Update();
+        
+        Console.WriteLine("Model drawn");
 
         ImageView.Source = _drawer.Bitmap;
     }
 
     private void WindowKeyDownEventHandler(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Right)
+        switch (e.Key)
         {
-            _model.RotateRight();
+            case Key.Q:
+                _model.RotateXNeg();
             
-            Console.WriteLine("Right");
-        }
-        else if (e.Key == Key.Left)
-        {
-            _model.RotateLeft();
+                Console.WriteLine("Rotation X-");
+                break;
+            case Key.W:
+                _model.RotateXPos();
             
-            Console.WriteLine("Left");
-        }
-        else if (e.Key == Key.Down)
-        {
-            _model.RotateDown();
+                Console.WriteLine("Rotation X+");
+                break;
             
-            Console.WriteLine("Down");
-        }
-        else if (e.Key == Key.Up)
-        {
-            _model.RotateUp();
+            case Key.A:
+                _model.RotateYNeg();
             
-            Console.WriteLine("Up");
-        }
-        else if (e.Key == Key.A)
-        {
-            _model.MoveLeft();
+                Console.WriteLine("Rotation Y-");
+                break;
+            case Key.S:
+                _model.RotateYPos();
             
-            Console.WriteLine("To left");
-        }
-        else if (e.Key == Key.D)
-        {
-            _model.MoveRight();
+                Console.WriteLine("Rotation Y+");
+                break;
             
-            Console.WriteLine("To right");
+            case Key.Z:
+                _model.RotateZNeg();
+            
+                Console.WriteLine("Rotation Z-");
+                break;
+            case Key.X:
+                _model.RotateZPos();
+            
+                Console.WriteLine("Rotation Z+");
+                break;
+            
+            case Key.OemPlus:
+                _model.ChangeStep(0.1f);
+            
+                Console.WriteLine("Step increased");
+                break;
+            case Key.OemMinus:
+                _model.ChangeStep(-0.1f);
+            
+                Console.WriteLine("Step decreased");
+                break;
+            default:
+                Console.WriteLine("Unknown operation");
+                
+                break;
         }
-        
+
         Update();
     }
 
@@ -90,10 +106,14 @@ public partial class MainWindow
         if (e.Delta > 0)
         {
             _model.ChangeScalingCoefficient(0.0001f);
+            
+            Console.WriteLine("Scaling increased");
         }
         else
         {
             _model.ChangeScalingCoefficient(-0.0001f);
+            
+            Console.WriteLine("Scaling decreased");
         }
         
         Update();
