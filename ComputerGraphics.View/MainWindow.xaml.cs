@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Numerics;
+using System.Windows.Input;
 using System.Windows.Media;
 using ComputerGraphics.Algorithms;
 
@@ -13,6 +14,12 @@ public partial class MainWindow
 
     private readonly Model _model;
     private readonly Converter _converter;
+    private Vector3 angle = Vector3.Zero;
+    private float scale = 0.03f;
+    private const float scale_step = 0.01f;
+    private Vector3 move = Vector3.Zero;
+    private float step = 0.2f;
+    
 
     private void Update()
     {
@@ -23,18 +30,26 @@ public partial class MainWindow
     {
         InitializeComponent();
 
-        var pathToObjFile = "D:\\Downloads\\cat.obj";
+        //var pathToObjFile = "D:\\Downloads\\ComputerGraphics-main\\objects\\Model.obj";
+        var pathToObjFile = "D:\\Downloads\\ComputerGraphics-main\\objects\\1\\plane.obj";
+        
         //var pathToObjFile = @"D:\downloads\cube.obj";
         //var pathToObjFile = @"D:\downloads\ImageToStl.com_datsun240k.obj";
-        //var pathToObjFile = @"D:\Downloads\teamugobj.obj";
+        //var pathToObjFile = @"D:\Downloads\teamugobj.j";
 
         ObjFileParser parser = new (pathToObjFile);
-        parser.ParseFile();
+        // parser.ParseFile("D:\\Downloads\\ComputerGraphics-main\\objects\\diffuse.png",
+        //     "D:\\Downloads\\ComputerGraphics-main\\objects\\specular.png",
+        //     "D:\\Downloads\\ComputerGraphics-main\\objects\\normal.png");
+        
+        parser.ParseFile("D:\\Downloads\\ComputerGraphics-main\\objects\\1\\diffuseMap.png",
+            "D:\\Downloads\\ComputerGraphics-main\\objects\\1\\reflectMap.png",
+            "D:\\Downloads\\ComputerGraphics-main\\objects\\1\\normalMap.png");
         
         Console.WriteLine("Parsed");
         _converter = new Converter();
         _model = new Model(parser, _converter, (int)ImageView.Width, (int)ImageView.Height);
-        
+        _model.Update(angle, scale, move);
         Console.WriteLine("Model created");
         
         _drawer = new Drawer((int)ImageView.Width, (int)ImageView.Height, Colors.White, Colors.Black, _model, _converter);
@@ -50,94 +65,102 @@ public partial class MainWindow
     {
         switch (e.Key)
         {
-            case Key.Q:
-                _model.RotateXNeg();
+            case Key.E:
+                _model._source.X -= 5f;
             
+                Console.WriteLine(_model._source.X);
+                break;
+            case Key.R:
+                _model._source.Y += 5f;
+            
+                Console.WriteLine("Source Y+");
+                break;
+            case Key.T:
+                _model._source.Z += 5f;
+            
+                Console.WriteLine("Source Z+");
+                break;
+            case Key.D:
+                _model._source.X += 5f;
+            
+                Console.WriteLine(_model._source.X);
+                break;
+            case Key.F:
+                _model._source.Y -= 5f;
+            
+                Console.WriteLine("Source Y-");
+                break;
+            case Key.G:
+                _model._source.Z -= 5f;
+            
+                Console.WriteLine("Source Z-");
+                break;
+            case Key.Q:
+                angle.X -= step;
                 Console.WriteLine("Rotation X-");
                 break;
             case Key.W:
-                _model.RotateXPos();
-            
+                angle.X += step;
                 Console.WriteLine("Rotation X+");
                 break;
             
             case Key.A:
-                _model.RotateYNeg();
-            
+                angle.Y -= step;
                 Console.WriteLine("Rotation Y-");
                 break;
             case Key.S:
-                _model.RotateYPos();
-            
+                angle.Y += step;
                 Console.WriteLine("Rotation Y+");
                 break;
             
             case Key.Z:
-                _model.RotateZNeg();
-            
+                angle.Z -= step;
                 Console.WriteLine("Rotation Z-");
                 break;
             case Key.X:
-                _model.RotateZPos();
-            
+                angle.Z += step;
                 Console.WriteLine("Rotation Z+");
                 break;
             
             case Key.OemPlus:
-                _model.ChangeStep(0.1f);
-            
+                step += 0.1f;
                 Console.WriteLine("Step increased");
                 break;
             case Key.OemMinus:
-                _model.ChangeStep(-0.1f);
-            
+                step -= 0.1f;
                 Console.WriteLine("Step decreased");
                 break;
             case Key.Left:
-                _model.MoveXPos();
-            
+                move.X += step;
                 Console.WriteLine("X pos");
                 break;
             case Key.Right:
-                _model.MoveXNeg();
-            
+                move.X -= step;
                 Console.WriteLine("X neg");
                 break;
             case Key.Up:
-                _model.MoveYPos();
-            
+                move.Y += step;
                 Console.WriteLine("Y pos");
                 break;
             case Key.Down:
-                _model.MoveYNeg();
-            
+                move.Y -= step;
                 Console.WriteLine("Y neg");
+                break;
+            case Key.Add:
+                scale += scale_step;
+                break;
+            case Key.Subtract:
+                scale -= scale_step;
                 break;
             default:
                 Console.WriteLine("Unknown operation");
                 
                 break;
         }
-
+        _model.Update(angle, scale, move);
         Update();
     }
 
-    private void MouseWheelScrollEventHandler(object sender, MouseWheelEventArgs e)
-    {
-        if (e.Delta > 0)
-        {
-            _model.ChangeScalingCoefficient(0.01f);
-            
-            Console.WriteLine("Scaling increased");
-        }
-        else
-        {
-            _model.ChangeScalingCoefficient(-0.01f);
-            
-            Console.WriteLine("Scaling decreased");
-        }
-        
-        Update();
-    }
+    
     
 }
